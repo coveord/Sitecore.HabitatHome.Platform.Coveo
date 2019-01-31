@@ -1,3 +1,5 @@
+#tool nuget:?package=vswhere
+
 using System.Text.RegularExpressions;
 
 /*===============================================
@@ -117,12 +119,18 @@ public void RebuildIndex(string indexName)
 
 public MSBuildSettings InitializeMSBuildSettings(MSBuildSettings settings)
 {
+    DirectoryPath vsLatest  = VSWhereLatest();
+    FilePath msBuildPathX64 = (vsLatest==null)
+                                ? null
+                                : vsLatest.CombineWithFilePath("./MSBuild/15.0/Bin/amd64/MSBuild.exe");
+
     settings.SetConfiguration(configuration.BuildConfiguration)
             .SetVerbosity(Verbosity.Minimal)
             .SetMSBuildPlatform(MSBuildPlatform.Automatic)
             .SetPlatformTarget(PlatformTarget.MSIL)
             .UseToolVersion(configuration.MSBuildToolVersion)
             .WithRestore();
+    settings.ToolPath = msBuildPathX64;
     return settings;
 }
 
